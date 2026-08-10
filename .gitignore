@@ -1,0 +1,22 @@
+# Xcode
+*.xcuserdata
+*.xcworkspace
+xcuserdata/
+DerivedData/
+build/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# App private keys (never commit real credentials)
+app/App/AppKey.private.swift
+
+# macOS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo

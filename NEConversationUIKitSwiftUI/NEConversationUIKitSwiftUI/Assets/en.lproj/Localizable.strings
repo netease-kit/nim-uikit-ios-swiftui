@@ -1,0 +1,55 @@
+
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
+//MAKR：common
+"scan_qr"="Scan QR";
+"scan_qr_result"="Scan result: %@";
+"scan_qr_no_result"="No valid content recognized";
+"scan_qr_no_camera_permission"="Please enable camera permission in Settings";
+"scan_qr_fail"="Scan failed, please try again";
+"qr_code_expired"="QR code has expired";
+"add_friend"="Add Contacts";
+"create_discussion_group"="Create Temperature Group";
+"create_senior_group"="Create Group";
+"cancel_stickTop"="Remove from top";
+"stickTop"="Sticky on Top";
+"delete"="Delete";
+"friend"="Contact";
+"contact"="Contact";
+"discussion_group"="Temperature Group";
+"senior_group"="Group";
+"search_keyword"="Enter and search...";
+"user_not_exist"="User not found";
+"session_empty"="No Session";
+
+"voice"="[Voice]";
+"picture"="[Photo]";
+"video"="[Video]";
+"location"="[Loaction]";
+"notification"="[Tip]";
+"tip"="[Reminder]";
+"file"="[File]";
+"internet_phone"="[Voice Call]";
+"video_chat"="[Video Call]";
+"custom"="[Custom Message]";
+"chat_history"="[Chat History]";
+"unknown"="[Unknown Message]";
+"appName"="CommsEase IM";
+"search"="Search";
+"cancel"="Cancel";
+"loading"="Loading";
+"yesterday"="Yesterday";
+"mdhm"="MM.dd HH:mm";
+"ymdhm"="yyyy.MM.dd HH:mm";
+"network_error"="No Network";
+
+"message_recalled"="Message recalled";
+
+"you_were_mentioned"="[You were mentioned]";
+"bot_sub_session_prefix"="[Sub-session] ";
+
+// error toast
+"leave_team"="Leave group chat";
+"leave_team_desc"="You have been removed from the group chat or the group chat has been dissolved.";
