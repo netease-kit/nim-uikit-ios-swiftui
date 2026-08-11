@@ -11,9 +11,7 @@ import NETeamUIKitSwiftUI
 import NIMSDK
 import SwiftUI
 import UIKit
-import YXLogin
 
-/// Coordinates app initialization, NIMSDK setup, and YXLogin auth.
 /// Coordinates the IMUIKitExample startup flow in a SwiftUI app shell.
 @MainActor
 enum AppBootstrap {
@@ -25,28 +23,8 @@ enum AppBootstrap {
     static func setup(completion: @escaping () -> Void) {
         setupIM()
         IMKitConfigCenter.shared.enableTeamJoinAgreeModelAuth = true
-        setupCallUIKit()
-        setupYXLogin()
         setupSwiftUIModules()
-
-        // Try auto-login first
-        AuthorManager.shareInstance()?.autoLogin { userInfo, error in
-            if let err = error as? NSError {
-                if err.code > 0 {
-                    onLoginFailure?(DemoNetworkPresentation.message(for: err, fallbackKey: "login_failed"))
-                }
-                completion()
-            } else if let userInfo,
-                      let accid = userInfo.imAccid,
-                      let token = userInfo.imToken
-            {
-                loginIM(accid: accid, token: token) {
-                    completion()
-                }
-            } else {
-                completion()
-            }
-        }
+        loginWithStoredPrivateCredentialsIfNeeded(completion: completion)
     }
 
     // MARK: - NIMSDK Setup
@@ -225,8 +203,10 @@ enum AppBootstrap {
         }
 
         ChatSwiftUIConfigCenter.shared.update(chatConfig)
+        let chatRouter = NEChatUIKitSwiftUIClient.shared.router
         NEChatUIKitSwiftUIClient.shared.setup(
             config: chatConfig,
+            router: chatRouter,
             registerLegacyRoutes: true
         )
         DemoPushConfigStore.applySavedConfig()
@@ -365,21 +345,6 @@ enum AppBootstrap {
         }
     }
 
-    // MARK: - YXLogin Setup
-
-    private static func setupYXLogin() {
-        let config = YXConfig()
-        config.appKey = ServerConfig.getAppkey()
-        config.parentScope = NSNumber(integerLiteral: 2)
-        config.scope = NSNumber(integerLiteral: 7)
-        #if DEBUG
-            config.isOnline = false
-        #else
-            config.isOnline = true
-        #endif
-        AuthorManager.shareInstance()?.initAuthor(with: config)
-    }
-
     // MARK: - IM SDK Login
 
     static func loginIM(accid: String, token: String, completion: @escaping () -> Void) {
@@ -401,40 +366,7 @@ enum AppBootstrap {
         }
     }
 
-    // MARK: - YXLogin phone/email login
-
-    static func startYXLogin() {
-        let config = YXConfig()
-        config.appKey = ServerConfig.getAppkey()
-        config.parentScope = NSNumber(integerLiteral: 2)
-        config.scope = NSNumber(integerLiteral: 7)
-        #if DEBUG
-            config.isOnline = false
-        #else
-            config.isOnline = true
-        #endif
-
-        // Use phone login by default (matches IMUIKitExample)
-        config.type = .phone
-        config.supportInternationalize = true
-
-        AuthorManager.shareInstance()?.initAuthor(with: config)
-        AuthorManager.shareInstance()?.startLogin { userInfo, error in
-            if let err = error as? NSError, err.code > 0 {
-                onLoginFailure?(DemoNetworkPresentation.message(for: err, fallbackKey: "login_failed"))
-                return
-            }
-            guard let userInfo,
-                  let accid = userInfo.imAccid,
-                  let token = userInfo.imToken
-            else {
-                return
-            }
-            loginIM(accid: accid, token: token) {}
-        }
-    }
-
-    // MARK: - POC direct IM login
+    // MARK: - Direct IM login
 
     static func loginPOC(account: String, token: String) {
         let option = V2NIMLoginOption()
@@ -449,14 +381,33 @@ enum AppBootstrap {
                     onLoginFailure?(DemoNetworkPresentation.message(for: error, fallbackKey: "login_failed"))
                 }
             } else {
+                var config = DemoPrivateCloudConfigStore.getConfig()
+                config.accountId = account
+                config.accountIdToken = token
+                DemoPrivateCloudConfigStore.saveConfig(config)
                 onLoginSuccess?()
             }
         }
     }
 
+    private static func loginWithStoredPrivateCredentialsIfNeeded(completion: @escaping () -> Void) {
+        let config = DemoPrivateCloudConfigStore.getConfig()
+        guard config.enableCustomConfig,
+              let account = config.accountId?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !account.isEmpty,
+              let token = config.accountIdToken?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !token.isEmpty else {
+            completion()
+            return
+        }
+
+        loginIM(accid: account, token: token, completion: completion)
+    }
+
     // MARK: - Post-login initialization
 
     static func initAfterLogin() {
+        setupCallUIKit()
         setupSwiftUIModules()
         warmUpSharedCaches()
         AppDelegate.active?.flushPendingPushNotifications()
@@ -465,21 +416,11 @@ enum AppBootstrap {
     // MARK: - Logout
 
     static func logout(completion: ((NSError?) -> Void)? = nil) {
-        guard let authorManager = AuthorManager.shareInstance() else {
-            IMKitClient.instance.logoutIM { error in
-                completion?(error)
-            }
-            return
-        }
-
-        authorManager.logout { _, _ in
-            IMKitClient.instance.logoutIM { error in
-                UserDefaults.standard.removeObject(forKey: "poc.accountId")
-                UserDefaults.standard.removeObject(forKey: "poc.accountIdToken")
-                NEFriendUserCache.shared.removeAllFriendInfo()
-                NESubscribeManager.shared.cleanCache()
-                completion?(error)
-            }
+        IMKitClient.instance.logoutIM { error in
+            DemoPrivateCloudConfigStore.clearCredentials()
+            NEFriendUserCache.shared.removeAllFriendInfo()
+            NESubscribeManager.shared.cleanCache()
+            completion?(error)
         }
     }
 

@@ -42,11 +42,17 @@ final class AppEnvironment: ObservableObject {
     /// App-level system settings prompt for denied iOS permissions.
     @Published var settingsPrompt: AppSettingsPrompt?
 
+    private var didSetup = false
+
     // MARK: - Initial setup
 
     func setup() {
+        guard !didSetup else {
+            return
+        }
+        didSetup = true
+
         themeMode = ThemeMode(rawValue: UserDefaults.standard.string(forKey: AppConstants.UserDefaultsKey.themeMode) ?? "") ?? .normal
-        AppBootstrap.syncSwiftUIModuleTheme(themeMode)
 
         AppBootstrap.onLoginSuccess = { [weak self] in
             Task { @MainActor in
@@ -77,11 +83,6 @@ final class AppEnvironment: ObservableObject {
     }
 
     // MARK: - Login actions
-
-    func loginWithPhone() {
-        loginErrorMessage = nil
-        AppBootstrap.startYXLogin()
-    }
 
     func loginWithPOC(account: String, token: String) {
         isAuthenticating = true

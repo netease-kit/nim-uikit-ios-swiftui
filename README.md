@@ -1,42 +1,25 @@
-# NIM UIKit SwiftUI
+网易云信即时通讯界面组件（IM UIKit）的 SwiftUI 实现，基于 [NIM SDK](https://doc.yunxin.163.com/messaging2/concept/DI0Nzc2NzA?platform=client) 开发，包括聊天、会话、通讯录、群管理、AI 搜索等组件。通过 IM UIKit SwiftUI，您可快速集成包含 UI 界面的即时通讯应用。
 
-网易云信 IM UIKit 的 SwiftUI 实现，提供会话列表、聊天、通讯录、群组管理等 IM 核心功能的 SwiftUI 组件。
+## 与 UIKit 版本的关系
 
-## 目录结构
+本仓库是 [nim-uikit-ios](https://github.com/netease-kit/nim-uikit-ios) (UIKit 版本) 的 SwiftUI 实现，提供相同的 IM 功能但使用 SwiftUI 框架构建。组件命名使用 `SwiftUI` 后缀以区分。
 
-```
-nim-uikit-ios-swiftui/
-├── app/                          # Demo 应用源码
-│   ├── App/                      # 入口 (AppDelegate, AppKey)
-│   ├── Bootstrap/                # 启动引导与服务注入
-│   ├── Login/                    # 登录页面
-│   ├── Main/                     # 各 Tab 的根视图与路由
-│   ├── Root/                     # 根容器与 TabBar
-│   ├── State/                    # 全局状态管理
-│   ├── Support/                  # 原生能力桥接 (相册/相机/录音/定位等)
-│   └── Resources/                # 资源文件
-├── NECommonUIKitSwiftUI/         # 通用 UI 组件 (基础层)
-├── NEChatUIKitSwiftUI/           # 聊天 UI 组件
-├── NEConversationUIKitSwiftUI/   # 会话列表 UI 组件
-├── NEContactUIKitSwiftUI/        # 通讯录 UI 组件
-├── NETeamUIKitSwiftUI/           # 群组管理 UI 组件
-├── NEAISearchKitSwiftUI/         # AI 搜索 UI 组件
-├── PodConfigs/                   # CocoaPods 共享配置
-└── Podfile                       # 依赖声明
-```
+## 适用客群
 
-## 模块依赖关系
+IM UIKit SwiftUI 适合使用 SwiftUI 框架开发 iOS 应用的团队，最低支持 iOS 16.0。
+
+## 组件架构
 
 ```
-NECommonUIKitSwiftUI  ──→  (无内部依赖)
-NEChatUIKitSwiftUI    ──→  NEChatKit + NECommonUIKitSwiftUI + lottie-ios
-NETeamUIKitSwiftUI    ──→  NEChatKit + NECommonUIKitSwiftUI
+NECommonUIKitSwiftUI   ──→  基础层（无内部依赖）
+NEChatUIKitSwiftUI     ──→  NEChatKit + NECommonUIKitSwiftUI + lottie-ios
+NETeamUIKitSwiftUI     ──→  NEChatKit + NECommonUIKitSwiftUI
 NEConversationUIKitSwiftUI ──→ NEChatKit + NEChatUIKitSwiftUI + NECommonUIKitSwiftUI
-NEContactUIKitSwiftUI ──→ NEChatKit + NEChatUIKitSwiftUI + NETeamUIKitSwiftUI + NECommonUIKitSwiftUI
-NEAISearchKitSwiftUI  ──→  NEChatKit
+NEContactUIKitSwiftUI  ──→  NEChatKit + NEChatUIKitSwiftUI + NETeamUIKitSwiftUI + NECommonUIKitSwiftUI
+NEAISearchKitSwiftUI   ──→  NEChatKit
 ```
 
-注: `NEChatKit` 为数据层组件，以二进制 Pod 形式分发，不在本仓库开源。
+注：`NEChatKit` 为数据层组件，以二进制 Pod 形式分发，源码不在此仓库开源。
 
 ## 快速开始
 
@@ -50,30 +33,27 @@ NEAISearchKitSwiftUI  ──→  NEChatKit
 ### 运行 Demo
 
 ```bash
-# 1. 安装依赖
+git clone git@github.com:netease-kit/nim-uikit-ios-swiftui.git
+cd nim-uikit-ios-swiftui
 pod install
-
-# 2. 打开 workspace
 open app.xcworkspace
-
-# 3. 在 Xcode 中选择 IMUIKitSwiftUIExample target 运行
 ```
 
 ### 使用组件
 
-在你的 `Podfile` 中添加:
+在 Podfile 中添加：
 
 ```ruby
-# 通过 CocoaPods 引用
-pod 'NEChatUIKitSwiftUI', '~> 10.9.0'
-pod 'NEConversationUIKitSwiftUI', '~> 10.9.0'
-# ... 其他模块
+pod 'NEChatUIKitSwiftUI', '10.9.30-beta'
+pod 'NEConversationUIKitSwiftUI', '10.9.30-beta'
 ```
 
-### 本地开发
+### 查看源码
 
-取消 `Podfile` 中开源组件的 `:path` 引用注释，即可使用本地源码进行开发和调试。
+Demo 的 Podfile 默认使用线上 SwiftUI UI 组件。需要源码模式开发调试时，先注释 SwiftUI UI 组件的线上依赖，再取消对应本地 `:path` 依赖的注释，然后执行 `pod install`。
 
-## 许可证
+## 相关文档
 
-MIT License - Copyright (c) 2022 NetEase, Inc.
+- [IM UIKit 功能概览](https://doc.yunxin.163.com/messaging-uikit/concept/zMzMDQ2MTg)
+- [集成开发文档](https://doc.yunxin.163.com/messaging-uikit/guide/DU4NzAzNzQ)
+- [NIM UIKit iOS (UIKit 版本)](https://github.com/netease-kit/nim-uikit-ios)

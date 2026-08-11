@@ -71,13 +71,16 @@
 
 // MARK: - Development specific
 "tab_chat"="Chat";
-"poc_direct_login"="Direct Login (bypass auth)";
-"poc_login_desc"="For private deployment, login directly with IM account and token.";
-"poc_account_placeholder"="Username";
+"poc_direct_login"="IM Account Login";
+"poc_login_desc"="Log in directly with an IM account and token. No business authentication SDK is required.";
+"poc_account_placeholder"="IM Account";
 "poc_token_placeholder"="Password/Token";
 "poc_login_action"="Log In";
 "poc_account_required"="Enter a username";
 "poc_token_required"="Enter a password/token";
+"clear_private_config"="Clear Private Cloud Configuration";
+"clear_private_config_confirm"="Clear the private cloud configuration? Restart the app before using a different environment.";
+"clear_private_config_success"="Configuration cleared. Restart the app to apply the change.";
 "login_info_incomplete"="Incomplete login information. Please try again.";
 "login_failed"="Login failed. Please try again.";
 "failed_operation"="Operation failed";

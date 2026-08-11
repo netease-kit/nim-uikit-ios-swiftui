@@ -25,7 +25,7 @@ public enum NETeamUIKitSwiftUIBundle {
     return Bundle(for: BundleToken.self)
   }()
 
-  /// Cascading localized string lookup across own bundle, NE* frameworks, and main bundle.
+  /// Cascading localized string lookup across own, common, and main bundles.
   public static func localized(_ key: String, value: String? = nil) -> String {
     let missingValue = "__NETeamSwiftUIResourceMissing__"
     for b in candidateBundles {
@@ -53,14 +53,8 @@ public enum NETeamUIKitSwiftUIBundle {
     append(bundle, to: &bundles, seen: &seen)
     appendNestedBundles(in: bundle, to: &bundles, seen: &seen)
     appendNestedBundles(in: Bundle(for: BundleToken.self), to: &bundles, seen: &seen)
-
-    for fw in Bundle.allFrameworks {
-      let name = fw.bundleURL.deletingPathExtension().lastPathComponent
-      if name.hasPrefix("NE") && (name.contains("UIKit") || name == "NEChatKit") {
-        append(fw, to: &bundles, seen: &seen)
-        appendNestedBundles(in: fw, to: &bundles, seen: &seen)
-      }
-    }
+    append(NECommonUIKitSwiftUIBundle.bundle, to: &bundles, seen: &seen)
+    appendNestedBundles(in: NECommonUIKitSwiftUIBundle.bundle, to: &bundles, seen: &seen)
 
     append(Bundle.main, to: &bundles, seen: &seen)
     appendNestedBundles(in: Bundle.main, to: &bundles, seen: &seen)

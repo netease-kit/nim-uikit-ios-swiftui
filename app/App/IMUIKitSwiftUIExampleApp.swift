@@ -14,7 +14,9 @@ struct IMUIKitSwiftUIExampleApp: App {
             RootContainerView()
                 .environmentObject(environment)
                 .onAppear {
-                    environment.setup()
+                    DispatchQueue.main.async {
+                        environment.setup()
+                    }
                 }
         }
     }

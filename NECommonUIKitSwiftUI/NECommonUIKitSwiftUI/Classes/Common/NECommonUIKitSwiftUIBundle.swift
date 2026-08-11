@@ -56,7 +56,7 @@ public enum NECommonUIKitSwiftUIBundle {
   }()
 
   /// Cascading localized string lookup matching UIKit resource lookup pattern.
-  /// Searches: own bundle → nested bundles → all NE* frameworks → main bundle.
+  /// Searches: own bundle -> nested bundles -> main bundle.
   public static func localized(_ key: String, fallback: String? = nil) -> String {
     let missingValue = "__NECommonSwiftUIResourceMissing__"
     for bundle in candidateBundles {
@@ -87,15 +87,6 @@ public enum NECommonUIKitSwiftUIBundle {
     append(bundle, to: &bundles, seen: &seen)
     appendNestedBundles(in: bundle, to: &bundles, seen: &seen)
     appendNestedBundles(in: Bundle(for: BundleToken.self), to: &bundles, seen: &seen)
-
-    // All NE* framework bundles (interface bundles matching UIKit pattern)
-    for fw in Bundle.allFrameworks {
-      let name = fw.bundleURL.deletingPathExtension().lastPathComponent
-      if name.hasPrefix("NE") && name.contains("UIKit") {
-        append(fw, to: &bundles, seen: &seen)
-        appendNestedBundles(in: fw, to: &bundles, seen: &seen)
-      }
-    }
 
     append(Bundle.main, to: &bundles, seen: &seen)
     appendNestedBundles(in: Bundle.main, to: &bundles, seen: &seen)

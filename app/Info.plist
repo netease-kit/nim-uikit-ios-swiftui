@@ -37,5 +37,7 @@
 	<false/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<key>UILaunchScreen</key>
+	<dict/>
 </dict>
 </plist>

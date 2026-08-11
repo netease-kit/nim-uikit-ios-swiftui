@@ -5,27 +5,18 @@
 import Foundation
 
 /// AppKey 配置
-///
-/// 发布前请将 app/App/AppKey.private.swift.example 复制为 AppKey.private.swift 并填入真实密钥。
-/// AppKey.private.swift 已在 .gitignore 中排除，不会被提交到仓库。
-public enum AppKey {
-  #if canImport(AppKeyPrivate)
-    public static let appKey = AppKeyPrivate.appKey
-    public static let overseasAppkey = AppKeyPrivate.overseasAppkey
-    public static let gaodeMapAppkey = AppKeyPrivate.gaodeMapAppkey
-    public static let apnsCername = AppKeyPrivate.apnsCername
-    public static let pkCerName = AppKeyPrivate.pkCerName
-  #else
-    public static let appKey = ""
-    public static let overseasAppkey = ""
-    public static let gaodeMapAppkey = ""
-    public static let apnsCername = ""
-    public static let pkCerName = ""
-  #endif
+/// 请在此处填写云信 AppKey 和推送证书名。
+public struct AppKey {
+    public static let accountId = "<#account#>"
+    public static let token = "<#token#>"
 
-  #if DEBUG
-    public static let isDebug = true
-  #else
-    public static let isDebug = false
-  #endif
+    #if DEBUG
+    public static let appKey = "<#请输入云信 AppKey#>"
+    public static let apnsCername = "<#请输入云信 Apns 推送证书名#>"
+    public static let pkCerName = "<#请输入云信 PushKit 推送证书名#>"
+    #else
+    public static let appKey = "<#请输入云信 AppKey#>"
+    public static let apnsCername = "<#请输入云信 Apns 推送证书名#>"
+    public static let pkCerName = "<#请输入云信 PushKit 推送证书名#>"
+    #endif
 }

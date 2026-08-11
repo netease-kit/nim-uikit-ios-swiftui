@@ -1056,12 +1056,18 @@ enum ExampleChatRouteHostActivation {
     }
 
     private static func consumeLatestPendingRequestIfPossible() {
+        let router = NEChatUIKitSwiftUIClient.shared.router
         guard let host = activeHost,
-              let request = NEChatUIKitSwiftUIClient.shared.router.pendingRequests.last else {
+              let request = router.pendingRequests.last else {
             return
         }
+
+        router.pendingRequests
+            .dropLast()
+            .map(\.id)
+            .forEach(router.cancel)
         host.openRoute(request.route)
-        NEChatUIKitSwiftUIClient.shared.router.complete(request.id)
+        router.complete(request.id)
     }
 }
 

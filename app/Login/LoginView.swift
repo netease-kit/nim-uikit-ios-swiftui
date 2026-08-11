@@ -4,139 +4,151 @@
 
 import NECommonUIKitSwiftUI
 import SwiftUI
-import YXLogin
+import UIKit
 
 /// Login screen matching IMUIKitExample NELoginViewController.
-/// Four login paths: phone, email, POC direct, and node select.
+/// The GitHub demo logs in directly with an IM account and token.
 struct LoginView: View {
     @EnvironmentObject var environment: AppEnvironment
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Spacer()
+            GeometryReader { geometry in
+                ZStack(alignment: .top) {
+                    Color.white
+                        .ignoresSafeArea()
 
-                // App branding
-                Image("launchIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 80, height: 80)
-                    .cornerRadius(20)
+                    loginContent
+                        .padding(.top, geometry.safeAreaInsets.top + LoginLayout.brandTop)
 
-                Text(localizable("appName"))
-                    .font(.system(size: 24))
-                    .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.darkText)
-                    .padding(.top, 12)
-
-                Spacer()
-
-                // Primary login button (phone register/login)
-                Button(action: { environment.loginWithPhone() }) {
-                    HStack {
-                        if environment.isAuthenticating {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        }
-                        Text(localizable("register_login"))
-                            .font(.system(size: 15))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(NEUIKitSwiftUIStyle.ColorToken.normalTheme)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
+                    bottomActions
+                        .padding(.horizontal, LoginLayout.bottomHorizontalInset)
+                        .position(
+                            x: geometry.size.width / 2,
+                            y: bottomActionCenterY(in: geometry)
+                        )
                 }
-                .disabled(environment.isAuthenticating)
-                .padding(.horizontal, 32)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .ignoresSafeArea()
+            }
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
 
-                // Error message
-                if let error = environment.loginErrorMessage {
-                    Text(error)
-                        .font(.system(size: 12))
-                        .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.redText)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-                        .padding(.top, 12)
-                }
+    private var loginContent: some View {
+        VStack(spacing: 0) {
+            Image("launchIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: LoginLayout.brandWidth, height: LoginLayout.brandHeight)
 
-                // Bottom action buttons (matching IMUIKitExample layout)
-                HStack(spacing: 0) {
-                    Spacer()
-                    Button(localizable("email_login")) {
-                        startEmailLogin()
+            Text(localizable("appName"))
+                .font(.system(size: 24))
+                .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.darkText)
+                .padding(.top, LoginLayout.titleOverlap)
+
+            Button(action: loginWithConfiguredAccount) {
+                HStack(spacing: 8) {
+                    if environment.isAuthenticating {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     }
+                    Text(localizable("register_login"))
+                        .font(.system(size: 15))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .foregroundColor(.white)
+                .background(NEUIKitSwiftUIStyle.ColorToken.normalTheme)
+                .clipShape(RoundedRectangle(cornerRadius: LoginLayout.loginButtonCornerRadius))
+            }
+            .buttonStyle(.plain)
+            .frame(height: LoginLayout.loginButtonHeight)
+            .disabled(environment.isAuthenticating)
+            .padding(.horizontal, LoginLayout.loginButtonHorizontalInset)
+            .padding(.top, LoginLayout.loginButtonTop)
+            .accessibilityIdentifier("id.loginButton")
+
+            if let error = environment.loginErrorMessage {
+                Text(error)
                     .font(.system(size: 12))
-                    .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.lightText)
-
-                    Spacer()
-
-                    NavigationLink(destination: NodeSelectionView()) {
-                        Text(localizable("node_select"))
-                            .font(.system(size: 12))
-                            .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.lightText)
-                    }
-
-                    Spacer()
-
-                    NavigationLink(destination: PrivateCloudConfigView()) {
-                        Text(localizable("privatized_configuration"))
-                            .font(.system(size: 12))
-                            .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.lightText)
-                    }
-
-                    Spacer()
-
-                    NavigationLink(destination: PocLoginView()) {
-                        Text(localizable("login_by_account"))
-                            .font(.system(size: 12))
-                            .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.lightText)
-                    }
-
-                    Spacer()
-                }
-                .padding(.top, 24)
-                .padding(.bottom, 48)
+                    .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.redText)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .padding(.horizontal, LoginLayout.loginButtonHorizontalInset)
+                    .padding(.top, 12)
             }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var bottomActions: some View {
+        HStack(spacing: 8) {
+            NavigationLink(destination: NodeSelectionView()) {
+                bottomActionLabel("node_select")
+            }
+            .accessibilityIdentifier("id.serverConfig")
+
+            NavigationLink(destination: PrivateCloudConfigView()) {
+                bottomActionLabel("privatized_configuration")
+            }
+            .accessibilityIdentifier("id.pocSetting")
+
+            NavigationLink(destination: PocLoginView()) {
+                bottomActionLabel("login_by_account")
+            }
+            .accessibilityIdentifier("id.pocLogin")
+        }
+        .frame(height: LoginLayout.bottomActionHeight)
+    }
+
+    private func bottomActionLabel(_ key: String) -> some View {
+        Text(localizable(key))
+            .font(.system(size: 12))
+            .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.lightText)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.white)
-        }
+            .contentShape(Rectangle())
     }
 
-    private func startEmailLogin() {
-        let config = YXConfig()
-        config.appKey = ServerConfig.getAppkey()
-        config.parentScope = NSNumber(integerLiteral: 2)
-        config.scope = NSNumber(integerLiteral: 7)
-        #if DEBUG
-        config.isOnline = false
-        #else
-        config.isOnline = true
-        #endif
-        config.type = .email
-        config.supportInternationalize = false
-
-        AuthorManager.shareInstance()?.initAuthor(with: config)
-        AuthorManager.shareInstance()?.startLogin { userInfo, error in
-            if let err = error as? NSError, err.code > 0 {
-                Task { @MainActor in
-                    environment.loginErrorMessage = DemoNetworkPresentation.message(
-                        for: err,
-                        fallbackKey: "login_failed"
-                    )
-                }
-                return
-            }
-            guard let userInfo,
-                  let accid = userInfo.imAccid,
-                  let token = userInfo.imToken else {
-                Task { @MainActor in
-                    environment.loginErrorMessage = localizable("login_info_incomplete")
-                }
-                return
-            }
-            AppBootstrap.loginIM(accid: accid, token: token) {}
+    private func loginWithConfiguredAccount() {
+        let account = AppKey.accountId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let token = AppKey.token.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !account.isEmpty else {
+            environment.loginErrorMessage = localizable("poc_account_required")
+            return
         }
+        guard !token.isEmpty else {
+            environment.loginErrorMessage = localizable("poc_token_required")
+            return
+        }
+        environment.loginWithPOC(account: account, token: token)
     }
+
+    private func bottomActionCenterY(in geometry: GeometryProxy) -> CGFloat {
+        let windowHeight = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)?
+            .bounds.height ?? geometry.frame(in: .global).maxY
+        return windowHeight
+            - LoginLayout.bottomInset
+            - LoginLayout.bottomActionHeight / 2
+    }
+}
+
+private enum LoginLayout {
+    static let brandTop: CGFloat = 145
+    static let brandWidth: CGFloat = 120
+    static let brandHeight: CGFloat = 154
+    static let titleOverlap: CGFloat = -12
+    static let loginButtonTop: CGFloat = 20
+    static let loginButtonHeight: CGFloat = 44
+    static let loginButtonHorizontalInset: CGFloat = 40
+    static let loginButtonCornerRadius: CGFloat = 8
+    static let bottomActionHeight: CGFloat = 44
+    static let bottomHorizontalInset: CGFloat = 20
+    static let bottomInset: CGFloat = 70
 }
 
 #if DEBUG

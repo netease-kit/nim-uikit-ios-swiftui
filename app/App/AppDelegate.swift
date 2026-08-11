@@ -12,7 +12,6 @@ import ObjectiveC
 import PushKit
 import UIKit
 import UserNotifications
-import YXLogin
 
 class AppDelegate: NSObject, UIApplicationDelegate, NERecordProvider {
     static weak var active: AppDelegate?
@@ -68,6 +67,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, NERecordProvider {
         // in local-conversation mode.
         v2Option.enableV2CloudConversation = UserDefaults.standard.value(forKey: keyEnableCloudConversation) as? Bool ?? false
 
+        IMKitClient.instance.config.fcsEnable = false
         IMKitClient.instance.config.shouldSyncStickTopSessionInfos = true
         IMKitClient.instance.config.teamReceiptEnabled = true
         IMKitClient.instance.config.shouldSyncUnreadCount = true
@@ -105,7 +105,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, NERecordProvider {
         Router.shared.register(CallViewRouter) { param in
             NotificationCenter.default.post(name: .neChatMediaPlaybackShouldStop, object: nil)
             if NEChatDetectNetworkTool.shareInstance.manager?.isReachable == false {
-                NotificationCenter.default.post(name: .appToast, object: commonLocalizable("network_error"))
+                NotificationCenter.default.post(name: .appToast, object: localizable("network_error"))
                 return
             }
 
@@ -406,12 +406,14 @@ extension AppDelegate: AIUserAgentProvider {
 extension AppDelegate: NEIMKitClientListener {
     func onLoginFailed(_ error: V2NIMError) {
         if error.code == userBannedCode {
+            NotificationCenter.default.post(name: .appToast, object: localizable("account_forbidden"))
             NotificationCenter.default.post(name: .logout, object: nil)
         }
     }
 
     func onKickedOffline(_ detail: V2NIMKickedOfflineDetail) {
         if detail.reason == .KICKED_OFFLINE_REASON_SERVER {
+            NotificationCenter.default.post(name: .appToast, object: localizable("account_kicked_offline"))
             NotificationCenter.default.post(name: .logout, object: nil)
         }
     }

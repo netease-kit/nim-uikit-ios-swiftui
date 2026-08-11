@@ -8,7 +8,6 @@ import NECommonUIKitSwiftUI
 import NIMSDK
 import SwiftUI
 import WebKit
-import YXLogin
 
 enum DemoSettingStyle {
     static func pageBackground(_ mode: ThemeMode) -> Color {
@@ -959,7 +958,6 @@ struct DemoAvatarView: View {
 struct DemoSettingsView: View {
     @EnvironmentObject private var environment: AppEnvironment
     @State private var showLogoutConfirm = false
-    @State private var showDeleteConfirm = false
 
     var body: some View {
         DemoNavigationPage(title: localizable("setting")) {
@@ -1013,15 +1011,6 @@ struct DemoSettingsView: View {
                     .padding(.horizontal, environment.themeMode == .normal ? 20 : 0)
                     .padding(.top, 24)
 
-                    Button {
-                        showDeleteConfirm = true
-                    } label: {
-                        Text(localizable("account_Cancellation"))
-                            .font(.system(size: 12))
-                            .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.lightText)
-                            .frame(height: 34)
-                    }
-                    .padding(.top, 18)
                 }
                 .padding(.bottom, 28)
             }
@@ -1031,12 +1020,6 @@ struct DemoSettingsView: View {
         .alert(localizable("want_to_logout"), isPresented: $showLogoutConfirm) {
             Button(localizable("cancel"), role: .cancel) {}
             Button(localizable("ok")) {
-                logout()
-            }
-        }
-        .alert(localizable("want_to_delete_account"), isPresented: $showDeleteConfirm) {
-            Button(localizable("cancel"), role: .cancel) {}
-            Button(localizable("account_Cancellation"), role: .destructive) {
                 logout()
             }
         }

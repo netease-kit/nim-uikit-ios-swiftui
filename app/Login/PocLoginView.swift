@@ -6,11 +6,13 @@ import NECommonUIKitSwiftUI
 import SwiftUI
 
 /// POC direct login view matching IMUIKitExample PocLoginViewController.
-/// Bypasses YXLogin and logs into IM SDK directly with account/token.
+/// Logs into the public IM SDK directly with an account and token.
 struct PocLoginView: View {
     @EnvironmentObject var environment: AppEnvironment
-    @State private var account: String = ""
-    @State private var token: String = ""
+    @State private var account = AppKey.accountId
+    @State private var token = AppKey.token
+    @State private var showClearConfigConfirm = false
+    @State private var feedback: String?
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: LoginField?
 
@@ -55,10 +57,24 @@ struct PocLoginView: View {
                 .disabled(environment.isAuthenticating || account.isEmpty || token.isEmpty)
             }
 
+            Section {
+                Button(localizable("clear_private_config"), role: .destructive) {
+                    showClearConfigConfirm = true
+                }
+            }
+
             if let error = environment.loginErrorMessage {
                 Section {
                     Text(error)
                         .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.redText)
+                        .font(.system(size: 12))
+                }
+            }
+
+            if let feedback {
+                Section {
+                    Text(feedback)
+                        .foregroundColor(NEUIKitSwiftUIStyle.ColorToken.greyText)
                         .font(.system(size: 12))
                 }
             }
@@ -68,6 +84,16 @@ struct PocLoginView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
             focusedField = nil
+        }
+        .alert(localizable("clear_private_config_confirm"), isPresented: $showClearConfigConfirm) {
+            Button(localizable("cancel"), role: .cancel) {}
+            Button(localizable("ok"), role: .destructive) {
+                DemoPrivateCloudConfigStore.clearConfig()
+                account = AppKey.accountId
+                token = AppKey.token
+                feedback = localizable("clear_private_config_success")
+                focusedField = nil
+            }
         }
     }
 

@@ -9,6 +9,8 @@ struct DemoPrivateCloudConfigModel: Equatable {
     var configMap: [String: String] = [:]
     var customJson: String?
     var enableCustomConfig = false
+    var accountId: String?
+    var accountIdToken: String?
 
     var appKey: String {
         get { configMap[#keyPath(NIMSDKOption.appKey)] ?? "" }
@@ -67,6 +69,12 @@ struct DemoPrivateCloudConfigModel: Equatable {
         if let customJson, !customJson.isEmpty {
             dictionary["customJson"] = customJson
         }
+        if let accountId, !accountId.isEmpty {
+            dictionary["accountId"] = accountId
+        }
+        if let accountIdToken, !accountIdToken.isEmpty {
+            dictionary["accountIdToken"] = accountIdToken
+        }
         return dictionary
     }
 
@@ -83,6 +91,8 @@ struct DemoPrivateCloudConfigModel: Equatable {
             model.enableCustomConfig = enable.boolValue
         }
         model.customJson = dictionary["customJson"] as? String
+        model.accountId = dictionary["accountId"] as? String
+        model.accountIdToken = (dictionary["accountIdToken"] as? String) ?? (dictionary["accountToken"] as? String)
         return model
     }
 }
@@ -105,6 +115,32 @@ enum DemoPrivateCloudConfigStore {
         saveObjectToDisk(model)
     }
 
+    static func clearCredentials() {
+        var model = getConfig()
+        model.accountId = nil
+        model.accountIdToken = nil
+        saveConfig(model)
+    }
+
+    static func clearConfig() {
+        cachedModel = nil
+        let defaults = UserDefaults.standard
+        [
+            "poc.private.enabled",
+            "poc.private.appKey",
+            "poc.private.module",
+            "poc.private.link",
+            "poc.private.lbs",
+            "poc.private.json",
+            "poc.accountId",
+            "poc.accountIdToken",
+        ].forEach(defaults.removeObject(forKey:))
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return
+        }
+        try? FileManager.default.removeItem(at: documentsDirectory.appendingPathComponent(filename))
+    }
+
     private static func legacyUserDefaultsModel() -> DemoPrivateCloudConfigModel {
         let defaults = UserDefaults.standard
         var model = DemoPrivateCloudConfigModel()
@@ -114,6 +150,8 @@ enum DemoPrivateCloudConfigStore {
         model.linkAddress = defaults.string(forKey: "poc.private.link") ?? ""
         model.lbsAddress = defaults.string(forKey: "poc.private.lbs") ?? ""
         model.customJson = defaults.string(forKey: "poc.private.json")
+        model.accountId = defaults.string(forKey: "poc.accountId")
+        model.accountIdToken = defaults.string(forKey: "poc.accountIdToken")
         return model
     }
 
@@ -146,7 +184,8 @@ enum DemoPrivateCloudConfigStore {
             let retrievedData = try Data(contentsOf: archiveURL)
             let propertyList = try PropertyListSerialization.propertyList(from: retrievedData, options: [], format: nil)
             if let dictionary = propertyList as? [String: Any],
-               dictionary["configMap"] != nil || dictionary["customJson"] != nil || dictionary["enableCustomConfig"] != nil {
+               dictionary["configMap"] != nil || dictionary["customJson"] != nil || dictionary["enableCustomConfig"] != nil ||
+               dictionary["accountId"] != nil || dictionary["accountToken"] != nil || dictionary["accountIdToken"] != nil {
                 return DemoPrivateCloudConfigModel.model(from: dictionary)
             }
         } catch {
@@ -206,19 +245,29 @@ enum ServerConfig {
 
     static func getAppkey() -> String {
         let privateConfig = DemoPrivateCloudConfigStore.getConfig()
-        if privateConfig.enableCustomConfig,
-           !privateConfig.customJsonIsEnabled,
-           !privateConfig.appKey.isEmpty {
-            return privateConfig.appKey
+        if privateConfig.enableCustomConfig {
+            if let jsonAppKey = appKey(from: privateConfig.customJson) {
+                return jsonAppKey
+            }
+            if !privateConfig.appKey.isEmpty {
+                return privateConfig.appKey
+            }
         }
-        let isOverseas = UserDefaults.standard.bool(forKey: "is_overseas_node")
-        return isOverseas ? AppKey.overseasAppkey : AppKey.appKey
+        return AppKey.appKey
     }
-}
 
-private extension DemoPrivateCloudConfigModel {
-    var customJsonIsEnabled: Bool {
-        !(customJson ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    private static func appKey(from customJson: String?) -> String? {
+        guard let customJson,
+              let data = customJson.data(using: .utf8),
+              let dictionary = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            return nil
+        }
+
+        let value = dictionary["appkey"] as? String
+            ?? dictionary[#keyPath(NIMSDKOption.appKey)] as? String
+        let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
 

@@ -9,14 +9,11 @@ build/
 Pods/
 Podfile.lock
 
-# App private keys (never commit real credentials)
+# App private keys
 app/App/AppKey.private.swift
 
 # macOS
 .DS_Store
 Thumbs.db
-
-# IDE
-.idea/
-*.swp
-*.swo
+.clarify
+openspec

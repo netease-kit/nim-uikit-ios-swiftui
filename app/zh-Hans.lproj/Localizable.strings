@@ -71,13 +71,16 @@
 
 // MARK: - Development specific
 "tab_chat"="聊天";
-"poc_direct_login"="直接登录（绕过业务层认证）";
-"poc_login_desc"="适用于私有化部署环境，直接使用 IM 账号和 Token 登录。";
-"poc_account_placeholder"="用户名";
+"poc_direct_login"="IM 账号登录";
+"poc_login_desc"="直接使用 IM 账号和 Token 登录，无需依赖业务认证 SDK。";
+"poc_account_placeholder"="IM 账号";
 "poc_token_placeholder"="密码/Token";
 "poc_login_action"="登录";
 "poc_account_required"="请输入用户名";
 "poc_token_required"="请输入密码/Token";
+"clear_private_config"="清除私有云配置";
+"clear_private_config_confirm"="确定要清除私有云配置吗？切换环境前需要重新启动应用。";
+"clear_private_config_success"="配置已清除，请重新启动应用使修改生效。";
 "login_info_incomplete"="登录信息不完整，请重试";
 "login_failed"="登录失败，请重试";
 "failed_operation"="操作失败";
