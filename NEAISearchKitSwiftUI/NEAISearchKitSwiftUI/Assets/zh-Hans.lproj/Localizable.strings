@@ -1,0 +1,33 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
+
+// MARK: AI 划词搜
+"operation_ai_word_search"="AI划词搜";
+
+"ok"="确认";
+"complete"="完成";
+"cancel"="取消";
+
+"ai_word_search" = "AI划词搜";
+"ai_word_searching" = "AI划词搜索中...";
+"input_more_button" = "补充信息";
+"input_more_placeholder" = "补充输入更多信息";
+"not_supported" = "暂不支持";
+"request_exception" = "模型请求异常";
+"network_error" = "当前网络不可用，请检查你的网络设置。";
+"parameter_setting_error" = "参数错误";
+"rate_limit_exceeded" = "频率超限";
+"user_not_exist" = "用户不存在";
+"user_banned" = "用户被禁用";
+"user_chat_banned" = "用户被禁言";
+"friend_not_exist" = "好友不存在";
+"message_hit_antispam" = "消息命中反垃圾";
+"team_member_not_exist" = "群成员不存在";
+"team_normal_member_chat_banned" = "群普通成员禁言";
+"team_member_chat_banned" = "群成员被禁言";
+"not_ai_account" = "不是数字人账号";
+"cannot_blocklist_ai_account" = "不允许对数字人进行黑名单操作";
+"ai_messages_function_disabled" = "AI 消息功能未开通";
+"failed_request_to_the_LLM" = "请求大语言模型失败";
